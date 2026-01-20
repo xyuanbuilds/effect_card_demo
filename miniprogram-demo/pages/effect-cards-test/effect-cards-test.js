@@ -36,6 +36,7 @@ Page({
 
     // 卡片尺寸（用于百分比计算）
     cardWidth: 300, // rpx，需要与 CSS 中的卡片宽度保持一致
+    cardHeight: 400, // rpx，需要与 CSS 中的卡片高度保持一致
 
     // 旋转基准点
     transformOrigin: "center bottom", // 'center top' | 'center center' | 'center bottom'
@@ -68,8 +69,12 @@ Page({
       perSlideOffset,
       maxVisibleCards,
       cardWidth,
+      cardHeight,
       cards,
     } = this.data;
+
+    const translateYCompFactor = 0.51; // 补偿系数，略大于0.5以抵消透视造成的视觉下坠
+    const swapDistance = cardWidth / 2; // 完整交换所需滑动距离（公共变量）
 
     const updatedCards = cards.map((card, index) => {
       // 计算 progress：对应 Swiper 的 slide.progress
@@ -77,7 +82,6 @@ Page({
       const progress = currentIndex - index;
       const absProgress = Math.abs(progress);
 
-      // 超出可见范围
       if (absProgress > maxVisibleCards) {
         return {
           ...card,
@@ -129,21 +133,94 @@ Page({
       // translateZ = -progress * 100
       // 每张卡片之间相差 100px
       // 已翻过的卡片负值（向前），未翻过的正值（向后）
-      const translateZ = -absProgress * 100 * 2;
+      let translateZ = -absProgress * 100 * 2;
+
+      // 滑动时，动态调整当前卡与目标卡的 Z 轴深度，使目标卡逐渐浮到前面
+      if (this.data.isSwiping && deltaX !== 0) {
+        const swipeProgress = Math.min(Math.abs(deltaX) / swapDistance, 1);
+
+        if (deltaX < 0) {
+          // 向左滑 → 目标卡是 currentIndex + 1
+          if (index === currentIndex) {
+            // 当前卡逐渐后退
+            translateZ = 0 - 150 * swipeProgress;
+          } else if (index === currentIndex + 1) {
+            // 下一张卡逐渐前移
+            translateZ = -200 + 250 * swipeProgress; // 起点 -200，终点 +50
+          }
+        } else if (deltaX > 0) {
+          // 向右滑 → 目标卡是 currentIndex - 1
+          if (index === currentIndex) {
+            translateZ = 0 - 150 * swipeProgress;
+          } else if (index === currentIndex - 1) {
+            translateZ = -200 + 250 * swipeProgress;
+          }
+        }
+      }
+
+      // ===== Y 轴偏移（补偿缩放中心）=====
+      let translateY = 0;
 
       // ===== 缩放计算=====
-      // 保持为 1，完全依赖 translateZ 和透视实现缩放效果
-      const scale = 1;
+      // 滑动时动态缩放当前卡片
+      let scale = 1;
+      if (this.data.isSwiping && index === currentIndex) {
+        // 根据滑动距离计算缩放比例
+        const swipeProgress = Math.abs(deltaX) / 200; // 滑动200px为完整过程
+        const scaleAmount = Math.min(swipeProgress * 0.2, 0.2); // 最多缩小20%
+        scale = 1 - scaleAmount;
 
-      // Z-index
-      const zIndex = 100 - absProgress;
+        // 调整 translateY 以保持视觉中心在 center center
+        // 当 transform-origin 是 bottom center 时，缩放会让卡片向下收缩
+        // 需要向上移动 (负的 translateY) 来补偿，使视觉效果像从中心缩放
+        translateY = -(1 - scale) * cardHeight * translateYCompFactor; // 向上补偿，保持视觉中心
+      } else if (this.data.isSwiping) {
+        // 让目标卡轻微缩小，抵消 translateZ 带来的视觉放大
+        const swipeProgress = Math.min(Math.abs(deltaX) / swapDistance, 1);
+
+        const isNextTarget = deltaX < 0 && index === currentIndex + 1;
+        const isPrevTarget = deltaX > 0 && index === currentIndex - 1;
+
+        if (isNextTarget || isPrevTarget) {
+          // 初始即缩小 3%，随滑动最多到 18%，抵消前移放大
+          const scaleAmount = Math.min(0.03 + swipeProgress * 0.15, 0.18);
+          scale = 1 - scaleAmount;
+
+          // 缩小时向上补偿，避免底部缩放导致的视觉下坠
+          translateY = -(1 - scale) * cardHeight * translateYCompFactor;
+        }
+      }
+
+      // Z-index（滑动时动态调整）
+      let zIndex = 100 - absProgress;
+
+      // 如果是即将显示的下一张卡片，提升其 z-index（先判断，优先级更高）
+      if (this.data.isSwiping) {
+        const threshold = 80;
+        if (deltaX < -threshold && index === currentIndex + 1) {
+          // 向左翻，下一张（右侧）卡片提升
+          zIndex = 101;
+        } else if (deltaX > threshold && index === currentIndex - 1) {
+          // 向右翻，上一张（左侧）卡片提升
+          zIndex = 101;
+        }
+      }
+
+      // 当滑动超过阈值时，降低当前卡片的 z-index
+      if (this.data.isSwiping && index === currentIndex) {
+        const threshold = 80;
+        if (Math.abs(deltaX) > threshold) {
+          // 即将翻页，降低当前卡片的 z-index
+          zIndex = 50;
+        }
+      }
 
       // 阴影
       const shadowOpacity = Math.min(absProgress * 0.3, 0.5);
 
       // 组合变换
       const transform = `
-        translate3d(${translateX}rpx, 0, ${translateZ}rpx)
+        translate3d(${translateX}rpx, ${translateY}rpx, ${translateZ}rpx)
         rotateZ(${rotate}deg)
         scale(${scale})
       `
