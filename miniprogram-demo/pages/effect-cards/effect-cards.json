@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "EffectCards - 卡片堆叠效果",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#764ba2",
+  "enablePullDownRefresh": false,
+  "disableScroll": true
+}
