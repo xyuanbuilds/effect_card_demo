@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/effect-cards/effect-cards",
-    "pages/effect-cards-advanced/effect-cards-advanced"
+    "pages/effect-cards-advanced/effect-cards-advanced",
+    "pages/effect-cards-test/effect-cards-test"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

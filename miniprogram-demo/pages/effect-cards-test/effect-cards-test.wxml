@@ -1,0 +1,179 @@
+<!--
+  perSlideRotate 效果测试页面
+  对比不同 perSlideRotate 值的视觉效果
+-->
+<view class="container">
+  <view class="header">
+    <text class="title">perSlideRotate 效果对比</text>
+    <text class="subtitle">实时调整旋转角度，查看效果变化</text>
+  </view>
+
+  <!-- 当前配置显示 -->
+  <view class="config-display">
+    <view class="config-row">
+      <text class="label">perSlideRotate:</text>
+      <text class="value">{{perSlideRotate}}°</text>
+    </view>
+    <view class="config-row">
+      <text class="label">perSlideOffset:</text>
+      <text class="value">{{perSlideOffset}}rpx</text>
+    </view>
+    <view class="config-row">
+      <text class="label">当前卡片:</text>
+      <text class="value">{{currentIndex + 1}}/{{cards.length}}</text>
+    </view>
+  </view>
+
+  <!-- 旋转角度调整 -->
+  <view class="slider-panel">
+    <text class="slider-label">旋转角度 (perSlideRotate)</text>
+    <view class="slider-container">
+      <text class="slider-value">0°</text>
+      <slider
+        class="slider"
+        min="0"
+        max="20"
+        step="1"
+        value="{{perSlideRotate}}"
+        bindchange="onRotateChange"
+        bindchanging="onRotateChanging"
+        activeColor="#667eea"
+        backgroundColor="#e0e0e0"
+        block-size="28"
+      />
+      <text class="slider-value">20°</text>
+    </view>
+  </view>
+
+  <!-- 偏移量调整 -->
+  <view class="slider-panel">
+    <text class="slider-label">偏移量 (perSlideOffset)</text>
+    <view class="slider-container">
+      <text class="slider-value">0</text>
+      <slider
+        class="slider"
+        min="0"
+        max="30"
+        step="1"
+        value="{{perSlideOffset}}"
+        bindchange="onOffsetChange"
+        bindchanging="onOffsetChanging"
+        activeColor="#764ba2"
+        backgroundColor="#e0e0e0"
+        block-size="28"
+      />
+      <text class="slider-value">30</text>
+    </view>
+  </view>
+
+  <!-- 旋转基准点选择 -->
+  <view class="slider-panel">
+    <text class="slider-label">旋转基准点 (transform-origin)</text>
+    <view class="origin-buttons">
+      <button
+        class="origin-btn {{transformOrigin === 'center top' ? 'active' : ''}}"
+        bindtap="setOrigin"
+        data-origin="center top"
+      >
+        顶部
+      </button>
+      <button
+        class="origin-btn {{transformOrigin === 'center center' ? 'active' : ''}}"
+        bindtap="setOrigin"
+        data-origin="center center"
+      >
+        中心
+      </button>
+      <button
+        class="origin-btn {{transformOrigin === 'center bottom' ? 'active' : ''}}"
+        bindtap="setOrigin"
+        data-origin="center bottom"
+      >
+        底部
+      </button>
+    </view>
+  </view>
+
+  <!-- 卡片容器 -->
+  <view class="cards-wrapper">
+    <view
+      class="card-item {{index === currentIndex ? 'active' : ''}}"
+      wx:for="{{cards}}"
+      wx:key="id"
+      style="{{item.style}}"
+      catchtouchstart="onTouchStart"
+      catchtouchmove="onTouchMove"
+      catchtouchend="onTouchEnd"
+      data-index="{{index}}"
+    >
+      <view class="card-content" style="background: {{item.gradient}}">
+        <view class="card-title-area">
+          <text class="card-number">{{index + 1}}</text>
+        </view>
+        <view class="card-body-area">
+          <text class="card-angle">旋转: {{item.rotateAngle}}°</text>
+          <text class="card-offset">偏移: {{item.offsetValue}}rpx</text>
+        </view>
+      </view>
+      <view class="card-shadow" style="{{item.shadowStyle}}"></view>
+    </view>
+  </view>
+
+  <!-- 预设值快捷按钮 -->
+  <view class="presets">
+    <text class="presets-title">快速预设</text>
+    <view class="preset-buttons">
+      <button
+        class="preset-btn {{perSlideRotate === 0 ? 'active' : ''}}"
+        bindtap="setPreset"
+        data-rotate="0"
+        data-offset="8"
+      >
+        无旋转
+      </button>
+      <button
+        class="preset-btn {{perSlideRotate === 2 ? 'active' : ''}}"
+        bindtap="setPreset"
+        data-rotate="2"
+        data-offset="8"
+      >
+        默认 (2°)
+      </button>
+      <button
+        class="preset-btn {{perSlideRotate === 5 ? 'active' : ''}}"
+        bindtap="setPreset"
+        data-rotate="5"
+        data-offset="10"
+      >
+        中等 (5°)
+      </button>
+      <button
+        class="preset-btn {{perSlideRotate === 10 ? 'active' : ''}}"
+        bindtap="setPreset"
+        data-rotate="10"
+        data-offset="15"
+      >
+        强烈 (10°)
+      </button>
+      <button
+        class="preset-btn {{perSlideRotate === 15 ? 'active' : ''}}"
+        bindtap="setPreset"
+        data-rotate="15"
+        data-offset="20"
+      >
+        极限 (15°)
+      </button>
+    </view>
+  </view>
+
+  <!-- 说明文字 -->
+  <view class="description">
+    <text class="desc-title">💡 说明</text>
+    <text class="desc-text">• perSlideRotate 控制每张卡片的旋转角度</text>
+    <text class="desc-text">• progress = -1 时，rotate = +perSlideRotate</text>
+    <text class="desc-text">• progress = +1 时，rotate = -perSlideRotate</text>
+    <text class="desc-text">• 旋转基准点默认在底部，可切换为顶部或中心</text>
+    <text class="desc-text">• 底部旋转：卡片像扇子一样从底部展开</text>
+    <text class="desc-text">• 与 Swiper Web 版实现完全一致</text>
+  </view>
+</view>

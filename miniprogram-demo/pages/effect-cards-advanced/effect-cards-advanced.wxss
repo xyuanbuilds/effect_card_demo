@@ -60,7 +60,7 @@ slider {
   margin-left: -160rpx;
   margin-top: -220rpx;
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform-origin: center center;
+  transform-origin: center bottom;
   will-change: transform;
   cursor: pointer;
 }

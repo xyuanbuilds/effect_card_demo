@@ -30,6 +30,19 @@
       </view>
       <text class="demo-arrow">→</text>
     </navigator>
+
+    <navigator
+      class="demo-item"
+      url="/pages/effect-cards-test/effect-cards-test"
+      hover-class="demo-item-hover"
+    >
+      <view class="demo-icon">🔬</view>
+      <view class="demo-info">
+        <text class="demo-title">perSlideRotate 测试</text>
+        <text class="demo-desc">验证旋转参数实现</text>
+      </view>
+      <text class="demo-arrow">→</text>
+    </navigator>
   </view>
 
   <view class="features">
