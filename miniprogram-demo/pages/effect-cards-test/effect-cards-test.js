@@ -27,12 +27,15 @@ Page({
         gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
       },
     ],
-    currentIndex: 0,
+    currentIndex: 2,
 
     // 核心参数（与 Swiper 默认值一致）
     perSlideRotate: 10, // 默认 10 度
     perSlideOffset: 10, // 默认 10 rpx
-    maxVisibleCards: 3,
+    maxVisibleCards: 1,
+
+    // 卡片尺寸（用于百分比计算）
+    cardWidth: 300, // rpx，需要与 CSS 中的卡片宽度保持一致
 
     // 旋转基准点
     transformOrigin: "center bottom", // 'center top' | 'center center' | 'center bottom'
@@ -48,8 +51,15 @@ Page({
   },
 
   /**
-   * 核心算法：与 Swiper 完全一致的实现
-   * 参考：https://github.com/nolimits4web/Swiper/commit/db08a70
+   * 核心算法：修正版本，更接近 Swiper 实现
+   *
+   * Swiper 的核心公式（来自 effect-cards.js）：
+   * 1. progress = 卡片位置相对于当前卡片的偏移（可以是小数）
+   * 2. tXAdd = perSlideOffset - Math.abs(progress) * 0.75
+   * 3. 使用 calc() 函数将百分比转换为像素
+   * 4. scale 取决于卡片是否为当前卡片
+   *
+   * 注意：小程序不支持 calc() 函数，所以需要预先计算百分比
    */
   updateCardsStyle(deltaX = 0) {
     const {
@@ -57,11 +67,13 @@ Page({
       perSlideRotate,
       perSlideOffset,
       maxVisibleCards,
+      cardWidth,
       cards,
     } = this.data;
 
     const updatedCards = cards.map((card, index) => {
-      // 计算 progress：大于 0 表示已翻过的卡片，放左侧；小于 0 表示未翻过，放右侧
+      // 计算 progress：对应 Swiper 的 slide.progress
+      // 正值表示已翻过（左侧），负值表示未翻过（右侧）
       const progress = currentIndex - index;
       const absProgress = Math.abs(progress);
 
@@ -76,32 +88,52 @@ Page({
         };
       }
 
-      // === Swiper 源码实现 ===
+      // ===== 旋转计算（与 Swiper 一致）=====
       // let rotate = -params.perSlideRotate * progress;
       let rotate = -perSlideRotate * progress;
 
-      // 滑动时增强旋转（Swiper 同样实现）
+      // 滑动时增强旋转
       if (this.data.isSwiping && index === currentIndex) {
         const swipeRotate = (deltaX / 10) * 0.5;
         rotate += swipeRotate;
       }
 
-      // === Swiper 源码实现 ===
-      // let tXAdd = params.perSlideOffset - Math.abs(progress) * 0.75;
-      const offsetAdd = perSlideOffset - absProgress * 0.75;
-      let translateX =
-        progress > 0 ? -offsetAdd * absProgress : offsetAdd * absProgress;
+      // ===== X 轴偏移计算（修正版）=====
+      // Swiper 公式：tXAdd = perSlideOffset - Math.abs(progress) * 0.75
+      const tXAdd = perSlideOffset - absProgress * 0.75;
+
+      // 计算百分比部分（Swiper 在 CSS 中使用 calc()，小程序需要预先计算）
+      const percentPart = tXAdd * absProgress;
+      // 百分比转换为实际像素（基于卡片宽度）
+      const percentPixels = (percentPart / 100) * cardWidth;
+
+      // 根据 progress 方向调整偏移
+      let translateX;
+      if (progress > 0) {
+        // 已翻过的卡片，向左偏移
+        translateX = -percentPixels;
+      } else if (progress < 0) {
+        // 未翻过的卡片，向右偏移
+        translateX = percentPixels;
+      } else {
+        // 当前卡片，无偏移
+        translateX = 0;
+      }
 
       // 滑动时跟手
       if (this.data.isSwiping && index === currentIndex) {
         translateX += deltaX * 0.5;
       }
 
-      // Z 轴深度
-      const translateZ = -100 * absProgress;
+      // ===== Z 轴深度（固定单位递进）=====
+      // translateZ = -progress * 100
+      // 每张卡片之间相差 100px
+      // 已翻过的卡片负值（向前），未翻过的正值（向后）
+      const translateZ = -absProgress * 100 * 2;
 
-      // 缩放
-      const scale = 1 - absProgress * 0.1;
+      // ===== 缩放计算=====
+      // 保持为 1，完全依赖 translateZ 和透视实现缩放效果
+      const scale = 1;
 
       // Z-index
       const zIndex = 100 - absProgress;
@@ -127,8 +159,8 @@ Page({
           opacity: 1;
         `,
         shadowStyle: `opacity: ${shadowOpacity};`,
-        rotateAngle: rotate.toFixed(1), // 显示当前旋转角度
-        offsetValue: translateX.toFixed(1), // 显示当前偏移量
+        rotateAngle: rotate.toFixed(1),
+        offsetValue: translateX.toFixed(1),
       };
     });
 

@@ -7,39 +7,39 @@ Page({
   data: {
     cards: [
       {
-        id: '1',
-        title: '美食推荐',
-        description: '发现身边的美味',
-        icon: '🍕',
-        gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        id: "1",
+        title: "美食推荐",
+        description: "发现身边的美味",
+        icon: "🍕",
+        gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       },
       {
-        id: '2',
-        title: '旅行计划',
-        description: '探索未知的世界',
-        icon: '✈️',
-        gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        id: "2",
+        title: "旅行计划",
+        description: "探索未知的世界",
+        icon: "✈️",
+        gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
       },
       {
-        id: '3',
-        title: '健身打卡',
-        description: '保持健康生活',
-        icon: '💪',
-        gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        id: "3",
+        title: "健身打卡",
+        description: "保持健康生活",
+        icon: "💪",
+        gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
       },
       {
-        id: '4',
-        title: '学习进度',
-        description: '每天进步一点点',
-        icon: '📚',
-        gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        id: "4",
+        title: "学习进度",
+        description: "每天进步一点点",
+        icon: "📚",
+        gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
       },
       {
-        id: '5',
-        title: '音乐收藏',
-        description: '聆听心灵之声',
-        icon: '🎵',
-        gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        id: "5",
+        title: "音乐收藏",
+        description: "聆听心灵之声",
+        icon: "🎵",
+        gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
       },
     ],
     currentIndex: 0,
@@ -66,19 +66,29 @@ Page({
    * 基于 Swiper EffectCards 的 setTranslate 实现
    */
   updateCardsStyle(deltaX = 0, deltaY = 0) {
-    const { currentIndex, perSlideOffset, perSlideRotate, maxVisibleCards, cards } = this.data;
+    const {
+      currentIndex,
+      perSlideOffset,
+      perSlideRotate,
+      maxVisibleCards,
+      cards,
+    } = this.data;
 
     const updatedCards = cards.map((card, index) => {
       // 计算 progress（卡片相对于当前卡片的位置）
-      const progress = index - currentIndex;
+      // 正值：已翻过的卡片（左侧）
+      // 0值：当前卡片
+      // 负值：未翻过的卡片（右侧）
+      const progress = currentIndex - index;
       const absProgress = Math.abs(progress);
 
       // 超出可见范围的卡片隐藏
       if (absProgress > maxVisibleCards) {
         return {
           ...card,
-          style: 'opacity: 0; z-index: -1; transform: translate3d(0, 0, -500rpx);',
-          shadowStyle: 'opacity: 0;'
+          style:
+            "opacity: 0; z-index: -1; transform: translate3d(0, 0, -500rpx);",
+          shadowStyle: "opacity: 0;",
         };
       }
 
@@ -101,11 +111,11 @@ Page({
       let translateX = 0;
 
       if (progress > 0) {
-        // 后面的卡片向右偏移
-        translateX = offsetAdd * absProgress;
-      } else if (progress < 0) {
-        // 前面的卡片向左偏移
+        // 已翻过的卡片向左偏移
         translateX = -offsetAdd * absProgress;
+      } else if (progress < 0) {
+        // 未翻过的卡片向右偏移
+        translateX = offsetAdd * absProgress;
       }
 
       // 滑动时的跟手效果
@@ -119,8 +129,8 @@ Page({
         translateY = deltaY * 0.3;
       }
 
-      // 5. 缩放效果（后面的卡片越来越小）
-      const scale = 1 - absProgress * 0.1;
+      // 5. 缩放效果（只有当前卡片不缩放，其他卡片按深度缩放）
+      const scale = progress === 0 ? 1 : 1 - absProgress * 0.1;
 
       // 6. Z-index 层级
       const zIndex = 100 - absProgress;
@@ -133,7 +143,9 @@ Page({
         translate3d(${translateX}rpx, ${translateY}rpx, ${translateZ}rpx)
         rotateZ(${rotate}deg)
         scale(${scale})
-      `.replace(/\s+/g, ' ').trim();
+      `
+        .replace(/\s+/g, " ")
+        .trim();
 
       // === 阴影效果 ===
       const shadowOpacity = Math.min(absProgress * 0.3, 0.5);
@@ -145,12 +157,12 @@ Page({
           z-index: ${zIndex};
           opacity: ${opacity};
         `,
-        shadowStyle: `opacity: ${shadowOpacity};`
+        shadowStyle: `opacity: ${shadowOpacity};`,
       };
     });
 
     this.setData({
-      cards: updatedCards
+      cards: updatedCards,
     });
   },
 
@@ -164,7 +176,7 @@ Page({
       touchStartY: touch.pageY,
       touchMoveX: 0,
       touchMoveY: 0,
-      isSwiping: true
+      isSwiping: true,
     });
   },
 
@@ -177,7 +189,7 @@ Page({
 
     this.setData({
       touchMoveX: deltaX,
-      touchMoveY: deltaY
+      touchMoveY: deltaY,
     });
 
     // 实时更新样式（跟手效果）
@@ -200,23 +212,26 @@ Page({
       // 向左滑（下一张）
       if (touchMoveX < 0 && currentIndex < cards.length - 1) {
         newIndex = currentIndex + 1;
-        this.animateCardOut('left');
+        this.animateCardOut("left");
       }
       // 向右滑（上一张）
       else if (touchMoveX > 0 && currentIndex > 0) {
         newIndex = currentIndex - 1;
-        this.animateCardOut('right');
+        this.animateCardOut("right");
       }
     }
 
-    this.setData({
-      currentIndex: newIndex,
-      isSwiping: false,
-      touchMoveX: 0,
-      touchMoveY: 0
-    }, () => {
-      this.updateCardsStyle();
-    });
+    this.setData(
+      {
+        currentIndex: newIndex,
+        isSwiping: false,
+        touchMoveX: 0,
+        touchMoveY: 0,
+      },
+      () => {
+        this.updateCardsStyle();
+      },
+    );
   },
 
   /**
@@ -234,19 +249,22 @@ Page({
    */
   switchToCard(e) {
     let index;
-    if (typeof e === 'number') {
+    if (typeof e === "number") {
       index = e;
     } else {
       index = parseInt(e.currentTarget.dataset.index);
     }
 
     if (index >= 0 && index < this.data.cards.length) {
-      this.setData({
-        currentIndex: index
-      }, () => {
-        this.updateCardsStyle();
-        wx.vibrateShort({ type: 'light' });
-      });
+      this.setData(
+        {
+          currentIndex: index,
+        },
+        () => {
+          this.updateCardsStyle();
+          wx.vibrateShort({ type: "light" });
+        },
+      );
     }
   },
 
@@ -259,7 +277,10 @@ Page({
   },
 
   nextCard() {
-    const newIndex = Math.min(this.data.cards.length - 1, this.data.currentIndex + 1);
+    const newIndex = Math.min(
+      this.data.cards.length - 1,
+      this.data.currentIndex + 1,
+    );
     this.switchToCard(newIndex);
   },
 
@@ -274,28 +295,34 @@ Page({
    * 配置参数调整
    */
   onOffsetChange(e) {
-    this.setData({
-      perSlideOffset: e.detail.value
-    }, () => {
-      this.updateCardsStyle();
-    });
+    this.setData(
+      {
+        perSlideOffset: e.detail.value,
+      },
+      () => {
+        this.updateCardsStyle();
+      },
+    );
   },
 
   onRotateChange(e) {
-    this.setData({
-      perSlideRotate: e.detail.value
-    }, () => {
-      this.updateCardsStyle();
-    });
+    this.setData(
+      {
+        perSlideRotate: e.detail.value,
+      },
+      () => {
+        this.updateCardsStyle();
+      },
+    );
   },
 
   /**
    * 卡片飞出动画
    */
   animateCardOut(direction) {
-    wx.vibrateShort({ type: 'light' });
+    wx.vibrateShort({ type: "light" });
 
     // 可以在这里添加更复杂的动画效果
     // 例如：粒子效果、翻转动画等
-  }
+  },
 });

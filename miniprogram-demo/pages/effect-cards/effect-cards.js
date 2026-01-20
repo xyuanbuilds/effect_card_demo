@@ -6,17 +6,17 @@
 Page({
   data: {
     cards: [
-      { id: '1', cardContent: '卡片 1', backgroundColor: '#667eea' },
-      { id: '2', cardContent: '卡片 2', backgroundColor: '#764ba2' },
-      { id: '3', cardContent: '卡片 3', backgroundColor: '#f093fb' },
-      { id: '4', cardContent: '卡片 4', backgroundColor: '#4facfe' },
+      { id: "1", cardContent: "卡片 1", backgroundColor: "#667eea" },
+      { id: "2", cardContent: "卡片 2", backgroundColor: "#764ba2" },
+      { id: "3", cardContent: "卡片 3", backgroundColor: "#f093fb" },
+      { id: "4", cardContent: "卡片 4", backgroundColor: "#4facfe" },
     ],
     currentIndex: 0,
 
     // 配置参数（参考 Swiper EffectCards）
-    perSlideOffset: 8,    // 每张卡片偏移量（rpx）
-    perSlideRotate: 2,    // 每张卡片旋转角度（度）
-    maxVisibleCards: 3,   // 最多可见卡片数
+    perSlideOffset: 8, // 每张卡片偏移量（rpx）
+    perSlideRotate: 2, // 每张卡片旋转角度（度）
+    maxVisibleCards: 3, // 最多可见卡片数
 
     // 触摸相关
     touchStartX: 0,
@@ -35,17 +35,26 @@ Page({
    * 核心算法：基于 Swiper EffectCards 的 setTranslate 逻辑
    */
   updateCardsStyle(deltaX = 0, deltaY = 0) {
-    const { currentIndex, perSlideOffset, perSlideRotate, maxVisibleCards, cards } = this.data;
+    const {
+      currentIndex,
+      perSlideOffset,
+      perSlideRotate,
+      maxVisibleCards,
+      cards,
+    } = this.data;
     const updatedCards = cards.map((card, index) => {
       // 计算每张卡片的 progress（相对于当前卡片的位置）
-      const progress = index - currentIndex;
+      // 正值：已翻过的卡片（左侧）
+      // 0值：当前卡片
+      // 负值：未翻过的卡片（右侧）
+      const progress = currentIndex - index;
 
       // 只处理可见范围内的卡片
       if (Math.abs(progress) > maxVisibleCards) {
         return {
           ...card,
-          style: 'opacity: 0; z-index: -1;',
-          shadowStyle: 'opacity: 0;'
+          style: "opacity: 0; z-index: -1;",
+          shadowStyle: "opacity: 0;",
         };
       }
 
@@ -66,15 +75,16 @@ Page({
 
       // X 轴偏移量
       const offsetAdd = perSlideOffset - absProgress * 0.75;
-      let translateX = progress > 0 ? offsetAdd * absProgress : -offsetAdd * absProgress;
+      let translateX =
+        progress > 0 ? -offsetAdd * absProgress : offsetAdd * absProgress;
 
       // 滑动时的额外偏移
       if (this.data.isSwiping && index === currentIndex) {
         translateX += deltaX * 0.5;
       }
 
-      // 缩放（越往后越小）
-      const scale = 1 - absProgress * 0.1;
+      // 缩放（只有当前卡片不缩放，其他卡片按深度缩放）
+      const scale = progress === 0 ? 1 : 1 - absProgress * 0.1;
 
       // z-index 层级
       const zIndex = 100 - Math.abs(Math.round(progress));
@@ -96,12 +106,12 @@ Page({
           z-index: ${zIndex};
           opacity: ${absProgress > maxVisibleCards ? 0 : 1};
         `,
-        shadowStyle: `opacity: ${shadowOpacity};`
+        shadowStyle: `opacity: ${shadowOpacity};`,
       };
     });
 
     this.setData({
-      cards: updatedCards
+      cards: updatedCards,
     });
   },
 
@@ -115,7 +125,7 @@ Page({
       touchStartY: touch.pageY,
       touchMoveX: 0,
       touchMoveY: 0,
-      isSwiping: true
+      isSwiping: true,
     });
   },
 
@@ -131,7 +141,7 @@ Page({
 
     this.setData({
       touchMoveX: deltaX,
-      touchMoveY: deltaY
+      touchMoveY: deltaY,
     });
 
     // 实时更新卡片样式（带滑动效果）
@@ -150,22 +160,25 @@ Page({
     // 向左滑动（下一张）
     if (touchMoveX < -threshold && currentIndex < cards.length - 1) {
       newIndex = currentIndex + 1;
-      this.animateCardOut('left');
+      this.animateCardOut("left");
     }
     // 向右滑动（上一张）
     else if (touchMoveX > threshold && currentIndex > 0) {
       newIndex = currentIndex - 1;
-      this.animateCardOut('right');
+      this.animateCardOut("right");
     }
 
-    this.setData({
-      currentIndex: newIndex,
-      isSwiping: false,
-      touchMoveX: 0,
-      touchMoveY: 0
-    }, () => {
-      this.updateCardsStyle();
-    });
+    this.setData(
+      {
+        currentIndex: newIndex,
+        isSwiping: false,
+        touchMoveX: 0,
+        touchMoveY: 0,
+      },
+      () => {
+        this.updateCardsStyle();
+      },
+    );
   },
 
   /**
@@ -173,7 +186,7 @@ Page({
    */
   animateCardOut(direction) {
     // 可以在这里添加卡片飞出的动画效果
-    wx.vibrateShort({ type: 'light' }); // 震动反馈
+    wx.vibrateShort({ type: "light" }); // 震动反馈
   },
 
   /**
@@ -181,11 +194,14 @@ Page({
    */
   switchToCard(index) {
     if (index >= 0 && index < this.data.cards.length) {
-      this.setData({
-        currentIndex: index
-      }, () => {
-        this.updateCardsStyle();
-      });
+      this.setData(
+        {
+          currentIndex: index,
+        },
+        () => {
+          this.updateCardsStyle();
+        },
+      );
     }
-  }
+  },
 });

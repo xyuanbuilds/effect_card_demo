@@ -1,5 +1,5 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCards } from "swiper";
+import { EffectCards } from "swiper/modules";
 import styles from "./swiper.module.css";
 
 import "swiper/css";
@@ -36,7 +36,11 @@ function App() {
           modules={[EffectCards]}
           className={styles.swiper}
           effect="cards"
-          cardsEffect={{ perSlideOffset: 10, perSlideRotate: 10 }}
+          cardsEffect={{
+            perSlideOffset: 10,
+            perSlideRotate: 10,
+            slideShadows: false,
+          }}
         >
           {currentCards.map((card) => {
             return (
