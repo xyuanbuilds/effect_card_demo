@@ -227,6 +227,55 @@ Page({
   },
 
   /**
+   * 可见卡片数量调整
+   */
+  onMaxVisibleCardsChanging(e) {
+    this.setData({
+      maxVisibleCards: e.detail.value,
+    });
+    this.updateCardsStyle();
+  },
+
+  onMaxVisibleCardsChange(e) {
+    this.setData({
+      maxVisibleCards: e.detail.value,
+    });
+    this.updateCardsStyle();
+    wx.vibrateShort({ type: "light" });
+  },
+
+  /**
+   * 卡片尺寸输入
+   */
+  onCardWidthInput(e) {
+    this.setData({
+      cardWidth: parseInt(e.detail.value) || 300,
+    });
+  },
+
+  onCardHeightInput(e) {
+    this.setData({
+      cardHeight: parseInt(e.detail.value) || 400,
+    });
+  },
+
+  onCardSizeBlur() {
+    // 当输入框失去焦点时，更新卡片样式
+    this.updateCardsStyle();
+    wx.vibrateShort({ type: "light" });
+  },
+
+  /**
+   * 阴影开关
+   */
+  onShadowChange(e) {
+    this.setData({
+      shadow: e.detail.value,
+    });
+    wx.vibrateShort({ type: "light" });
+  },
+
+  /**
    * 预设值快速切换
    */
   setPreset(e) {

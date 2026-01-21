@@ -1,8 +1,8 @@
 .container {
   min-height: 100vh;
   padding: 40rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-sizing: border-box;
+  background: cadetblue;
 }
 
 .header {
@@ -30,13 +30,17 @@
   border-radius: 20rpx;
   margin-bottom: 30rpx;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
+  padding: 20rpx 10rpx;
 }
 
 .config-row {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 10rpx;
+  min-width: 30%;
 }
 
 .config-row .label {
@@ -46,7 +50,7 @@
 }
 
 .config-row .value {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: bold;
   color: #667eea;
 }
@@ -84,10 +88,51 @@
   text-align: center;
 }
 
+/* 输入框行 */
+.input-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.input-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.size-input {
+  height: 64rpx;
+  padding: 0 20rpx;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  border: 2rpx solid #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.size-input:focus {
+  background: white;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
+}
+
+/* 开关行 */
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* 卡片容器 */
 .cards-wrapper {
   position: relative;
-  height: 400rpx;
   margin: 60rpx auto;
   perspective: 1200rpx; /* 透视距离：控制 Z 轴变化的视觉效果强度 */
   transform-style: preserve-3d;
@@ -131,12 +176,6 @@
 
 .card-item {
   position: absolute;
-  width: 300rpx;
-  height: 400rpx;
-  left: 50%;
-  top: 50%;
-  margin-left: -150rpx;
-  margin-top: -200rpx;
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform-origin: center bottom;
   will-change: transform;

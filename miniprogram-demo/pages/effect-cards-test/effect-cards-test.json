@@ -1,8 +1,5 @@
 {
   "navigationBarTitleText": "perSlideRotate 测试",
-  "navigationBarBackgroundColor": "#667eea",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#764ba2",
-  "enablePullDownRefresh": false,
-  "disableScroll": true
+  "enablePullDownRefresh": false
 }

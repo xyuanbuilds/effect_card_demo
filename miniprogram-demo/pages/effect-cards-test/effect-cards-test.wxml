@@ -3,6 +3,38 @@
   对比不同 perSlideRotate 值的视觉效果
 -->
 <view class="container">
+
+  <!-- 卡片容器 -->
+  <view class="cards-wrapper" style="height: {{cardHeight}}rpx;">
+    <!-- 左侧按钮：上一张 -->
+    <view wx:if="{{currentIndex > 0}}" class="nav-btn nav-btn-left" bindtap="gotoPrev"></view>
+
+    <view
+      class="card-item {{index === currentIndex ? 'active' : ''}}"
+      wx:for="{{cards}}"
+      wx:key="id"
+      style="{{item.style}}; width: {{cardWidth}}rpx; height: {{cardHeight}}rpx; left: 50%; top: 50%; margin-left: -{{cardWidth/2}}rpx; margin-top: -{{cardHeight/2}}rpx;"
+      catchtouchstart="onTouchStart"
+      catchtouchmove="onTouchMove"
+      catchtouchend="onTouchEnd"
+      data-index="{{index}}"
+    >
+      <view class="card-content" style="background: {{item.gradient}}">
+        <view class="card-title-area">
+          <text class="card-number">{{index + 1}}</text>
+        </view>
+        <view class="card-body-area">
+          <text class="card-angle">旋转: {{item.rotateAngle}}°</text>
+          <text class="card-offset">偏移: {{item.offsetValue}}rpx</text>
+        </view>
+      </view>
+      <view wx:if="{{shadow}}" class="card-shadow" style="{{item.shadowStyle}}"></view>
+    </view>
+
+    <!-- 右侧按钮：下一张 -->
+    <view wx:if="{{currentIndex < cards.length - 1}}" class="nav-btn nav-btn-right" bindtap="gotoNext"></view>
+  </view>
+
   <view class="header">
     <text class="title">perSlideRotate 效果对比</text>
     <text class="subtitle">实时调整旋转角度，查看效果变化</text>
@@ -21,6 +53,14 @@
     <view class="config-row">
       <text class="label">当前卡片:</text>
       <text class="value">{{currentIndex + 1}}/{{cards.length}}</text>
+    </view>
+    <view class="config-row">
+      <text class="label">可见数量:</text>
+      <text class="value">{{maxVisibleCards}}</text>
+    </view>
+    <view class="config-row">
+      <text class="label">卡片尺寸:</text>
+      <text class="value">{{cardWidth}}×{{cardHeight}}</text>
     </view>
   </view>
 
@@ -66,6 +106,66 @@
     </view>
   </view>
 
+  <!-- 可见卡片数量调整 -->
+  <view class="slider-panel">
+    <text class="slider-label">可见卡片数量 (maxVisibleCards)</text>
+    <view class="slider-container">
+      <text class="slider-value">1</text>
+      <slider
+        class="slider"
+        min="1"
+        max="5"
+        step="1"
+        value="{{maxVisibleCards}}"
+        bindchange="onMaxVisibleCardsChange"
+        bindchanging="onMaxVisibleCardsChanging"
+        activeColor="#43e97b"
+        backgroundColor="#e0e0e0"
+        block-size="28"
+      />
+      <text class="slider-value">5</text>
+    </view>
+  </view>
+
+  <!-- 卡片尺寸调整 -->
+  <view class="slider-panel">
+    <text class="slider-label">卡片尺寸</text>
+    <view class="input-row">
+      <view class="input-group">
+        <text class="input-label">宽度 (rpx)</text>
+        <input
+          class="size-input"
+          type="number"
+          value="{{cardWidth}}"
+          bindinput="onCardWidthInput"
+          bindblur="onCardSizeBlur"
+        />
+      </view>
+      <view class="input-group">
+        <text class="input-label">高度 (rpx)</text>
+        <input
+          class="size-input"
+          type="number"
+          value="{{cardHeight}}"
+          bindinput="onCardHeightInput"
+          bindblur="onCardSizeBlur"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 阴影开关 -->
+  <view class="slider-panel">
+    <view class="switch-row">
+      <text class="slider-label">阴影效果 (shadow)</text>
+      <switch
+        checked="{{shadow}}"
+        bindchange="onShadowChange"
+        color="#667eea"
+      />
+    </view>
+  </view>
+
   <!-- 旋转基准点选择 -->
   <view class="slider-panel">
     <text class="slider-label">旋转基准点 (transform-origin)</text>
@@ -92,37 +192,6 @@
         底部
       </button>
     </view>
-  </view>
-
-  <!-- 卡片容器 -->
-  <view class="cards-wrapper">
-    <!-- 左侧按钮：上一张 -->
-    <view wx:if="{{currentIndex > 0}}" class="nav-btn nav-btn-left" bindtap="gotoPrev"></view>
-
-    <view
-      class="card-item {{index === currentIndex ? 'active' : ''}}"
-      wx:for="{{cards}}"
-      wx:key="id"
-      style="{{item.style}}"
-      catchtouchstart="onTouchStart"
-      catchtouchmove="onTouchMove"
-      catchtouchend="onTouchEnd"
-      data-index="{{index}}"
-    >
-      <view class="card-content" style="background: {{item.gradient}}">
-        <view class="card-title-area">
-          <text class="card-number">{{index + 1}}</text>
-        </view>
-        <view class="card-body-area">
-          <text class="card-angle">旋转: {{item.rotateAngle}}°</text>
-          <text class="card-offset">偏移: {{item.offsetValue}}rpx</text>
-        </view>
-      </view>
-      <view wx:if="{{shadow}}" class="card-shadow" style="{{item.shadowStyle}}"></view>
-    </view>
-
-    <!-- 右侧按钮：下一张 -->
-    <view wx:if="{{currentIndex < cards.length - 1}}" class="nav-btn nav-btn-right" bindtap="gotoNext"></view>
   </view>
 
   <!-- 预设值快捷按钮 -->
