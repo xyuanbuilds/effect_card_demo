@@ -73,7 +73,8 @@ Page({
       cards,
     } = this.data;
 
-    const translateYCompFactor = 0.51; // 缩放向上补偿系数
+    // 缩放向上补偿系数，更大后，拖放中的卡片会向上
+    const translateYCompFactor = 0;
     const swapDistance = cardWidth / 2; // 完整交换所需滑动距离
 
     // 计算滑动偏移量（归一化到 -1 到 1）

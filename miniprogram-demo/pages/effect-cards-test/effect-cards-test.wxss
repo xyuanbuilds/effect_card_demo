@@ -90,7 +90,7 @@
   width: 300rpx;
   height: 400rpx;
   margin: 60rpx auto;
-  perspective: 160vw; /* 透视距离：控制 Z 轴变化的视觉效果强度 */
+  perspective: 1200rpx; /* 透视距离：控制 Z 轴变化的视觉效果强度 */
   transform-style: preserve-3d;
 }
 
