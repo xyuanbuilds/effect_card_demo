@@ -32,9 +32,9 @@ Page({
     // 核心参数（与 Swiper 默认值一致）
     perSlideRotate: 10, // 默认 10 度
     perSlideOffset: 10, // 默认 10 rpx
-    maxVisibleCards: 1,
+    maxVisibleCards: 3,
 
-    // 卡片尺寸（用于百分比计算）
+    // 卡片尺寸（用于百分比/交换距离计算）
     cardWidth: 300, // rpx，需要与 CSS 中的卡片宽度保持一致
     cardHeight: 400, // rpx，需要与 CSS 中的卡片高度保持一致
 
@@ -52,15 +52,15 @@ Page({
   },
 
   /**
-   * 核心算法：修正版本，更接近 Swiper 实现
+   * 核心算法：完全遵循 Swiper 实现
    *
-   * Swiper 的核心公式（来自 effect-cards.js）：
-   * 1. progress = 卡片位置相对于当前卡片的偏移（可以是小数）
-   * 2. tXAdd = perSlideOffset - Math.abs(progress) * 0.75
-   * 3. 使用 calc() 函数将百分比转换为像素
-   * 4. scale 取决于卡片是否为当前卡片
+   * Swiper 的核心公式（来自 effect-cards.mjs）：
+   * 1. progress = 卡片位置相对于当前卡片的偏移（滑动时是连续的小数）
+   * 2. 通过 isSwipeToNext/isSwipeToPrev 判断滑动状态
+   * 3. 使用 subProgress 计算平滑的过渡系数
+   * 4. 动态调整 rotate, scale, tXAdd, tY
    *
-   * 注意：小程序不支持 calc() 函数，所以需要预先计算百分比
+   * 关键改动：使用动态 progress = baseProgress + swipeOffset
    */
   updateCardsStyle(deltaX = 0) {
     const {
@@ -73,16 +73,20 @@ Page({
       cards,
     } = this.data;
 
-    const translateYCompFactor = 0.51; // 补偿系数，略大于0.5以抵消透视造成的视觉下坠
-    const swapDistance = cardWidth / 2; // 完整交换所需滑动距离（公共变量）
+    const translateYCompFactor = 0.51; // 缩放向上补偿系数
+    const swapDistance = cardWidth / 2; // 完整交换所需滑动距离
+
+    // 计算滑动偏移量（归一化到 -1 到 1）
+    const swipeOffset = this.data.isSwiping ? -deltaX / swapDistance : 0;
 
     const updatedCards = cards.map((card, index) => {
-      // 计算 progress：对应 Swiper 的 slide.progress
-      // 正值表示已翻过（左侧），负值表示未翻过（右侧）
-      const progress = currentIndex - index;
+      // ===== 1. 计算动态 progress（核心改动）=====
+      const baseProgress = currentIndex - index;
+      const progress = baseProgress + swipeOffset; // 滑动时连续变化
       const absProgress = Math.abs(progress);
 
-      if (absProgress > maxVisibleCards) {
+      // maxVisibleCards 控制可见卡片数量
+      if (Math.abs(baseProgress) > maxVisibleCards) {
         return {
           ...card,
           style: "opacity: 0; z-index: -1;",
@@ -92,137 +96,75 @@ Page({
         };
       }
 
-      // ===== 旋转计算（与 Swiper 一致）=====
-      // let rotate = -params.perSlideRotate * progress;
+      // ===== 2. 初始化基础变换 =====
       let rotate = -perSlideRotate * progress;
+      let tXAdd = perSlideOffset - absProgress * 0.75;
+      let scale = 1;
+      let tY = 0;
 
-      // 滑动时增强旋转
-      if (this.data.isSwiping && index === currentIndex) {
-        const swipeRotate = (deltaX / 10) * 0.5;
-        rotate += swipeRotate;
+      // ===== 3. 判断是否在滑动到下一张/上一张（Swiper 逻辑）=====
+      const isSwipeToNext =
+        (index === currentIndex || index === currentIndex - 1) &&
+        progress > 0 &&
+        progress < 1 &&
+        this.data.isSwiping &&
+        deltaX < 0;
+
+      const isSwipeToPrev =
+        (index === currentIndex || index === currentIndex + 1) &&
+        progress < 0 &&
+        progress > -1 &&
+        this.data.isSwiping &&
+        deltaX > 0;
+
+      // ===== 4. 应用 Swiper 的动态变换 =====
+      if (isSwipeToNext || isSwipeToPrev) {
+        const subProgress = Math.pow(
+          1 - Math.abs((absProgress - 0.5) / 0.5),
+          0.5,
+        );
+
+        rotate += -28 * progress * subProgress;
+        scale += -0.5 * subProgress;
+        tXAdd += 96 * subProgress;
+        tY = -25 * subProgress * absProgress; // 百分比
       }
 
-      // ===== X 轴偏移计算（修正版）=====
-      // Swiper 公式：tXAdd = perSlideOffset - Math.abs(progress) * 0.75
-      const tXAdd = perSlideOffset - absProgress * 0.75;
-
-      // 计算百分比部分（Swiper 在 CSS 中使用 calc()，小程序需要预先计算）
-      const percentPart = tXAdd * absProgress;
-      // 百分比转换为实际像素（基于卡片宽度）
-      const percentPixels = (percentPart / 100) * cardWidth;
-
-      // 根据 progress 方向调整偏移
-      let translateX;
+      // ===== 5. 计算 translateX =====
+      const percentPixels = ((tXAdd * absProgress) / 100) * cardWidth;
+      let translateX = 0;
       if (progress > 0) {
-        // 已翻过的卡片，向左偏移
         translateX = -percentPixels;
       } else if (progress < 0) {
-        // 未翻过的卡片，向右偏移
         translateX = percentPixels;
-      } else {
-        // 当前卡片，无偏移
-        translateX = 0;
       }
 
-      // 滑动时跟手
-      if (this.data.isSwiping && index === currentIndex) {
-        translateX += deltaX * 0.5;
+      // ===== 6. 计算 translateY（补偿 + 动态偏移）=====
+      let translateY = (tY / 100) * cardHeight;
+
+      // ===== 7. 计算 translateZ =====
+      const translateZ = -100 * 2 * absProgress;
+
+      // ===== 8. 计算 scale 的最终值（Swiper 公式）=====
+      const scaleString =
+        progress < 0 ? 1 + (1 - scale) * progress : 1 - (1 - scale) * progress;
+
+      // 添加缩放补偿到 translateY
+      if (scaleString !== 1) {
+        translateY += -(1 - scaleString) * cardHeight * translateYCompFactor;
       }
 
-      // ===== Z 轴深度（固定单位递进）=====
-      // translateZ = -progress * 100
-      // 每张卡片之间相差 100px
-      // 已翻过的卡片负值（向前），未翻过的正值（向后）
-      let translateZ = -absProgress * 100 * 2;
+      // ===== 9. Z-index 计算 =====
+      const zIndex = -Math.abs(Math.round(baseProgress)) + cards.length;
 
-      // 滑动时，动态调整当前卡与目标卡的 Z 轴深度，使目标卡逐渐浮到前面
-      if (this.data.isSwiping && deltaX !== 0) {
-        const swipeProgress = Math.min(Math.abs(deltaX) / swapDistance, 1);
+      // ===== 10. 阴影透明度 =====
+      const shadowOpacity = Math.min(Math.max((absProgress - 0.5) / 0.5, 0), 1);
 
-        if (deltaX < 0) {
-          // 向左滑 → 目标卡是 currentIndex + 1
-          if (index === currentIndex) {
-            // 当前卡逐渐后退
-            translateZ = 0 - 150 * swipeProgress;
-          } else if (index === currentIndex + 1) {
-            // 下一张卡逐渐前移
-            translateZ = -200 + 250 * swipeProgress; // 起点 -200，终点 +50
-          }
-        } else if (deltaX > 0) {
-          // 向右滑 → 目标卡是 currentIndex - 1
-          if (index === currentIndex) {
-            translateZ = 0 - 150 * swipeProgress;
-          } else if (index === currentIndex - 1) {
-            translateZ = -200 + 250 * swipeProgress;
-          }
-        }
-      }
-
-      // ===== Y 轴偏移（补偿缩放中心）=====
-      let translateY = 0;
-
-      // ===== 缩放计算=====
-      // 滑动时动态缩放当前卡片
-      let scale = 1;
-      if (this.data.isSwiping && index === currentIndex) {
-        // 根据滑动距离计算缩放比例
-        const swipeProgress = Math.abs(deltaX) / 200; // 滑动200px为完整过程
-        const scaleAmount = Math.min(swipeProgress * 0.2, 0.2); // 最多缩小20%
-        scale = 1 - scaleAmount;
-
-        // 调整 translateY 以保持视觉中心在 center center
-        // 当 transform-origin 是 bottom center 时，缩放会让卡片向下收缩
-        // 需要向上移动 (负的 translateY) 来补偿，使视觉效果像从中心缩放
-        translateY = -(1 - scale) * cardHeight * translateYCompFactor; // 向上补偿，保持视觉中心
-      } else if (this.data.isSwiping) {
-        // 让目标卡轻微缩小，抵消 translateZ 带来的视觉放大
-        const swipeProgress = Math.min(Math.abs(deltaX) / swapDistance, 1);
-
-        const isNextTarget = deltaX < 0 && index === currentIndex + 1;
-        const isPrevTarget = deltaX > 0 && index === currentIndex - 1;
-
-        if (isNextTarget || isPrevTarget) {
-          // 初始即缩小 3%，随滑动最多到 18%，抵消前移放大
-          const scaleAmount = Math.min(0.03 + swipeProgress * 0.15, 0.18);
-          scale = 1 - scaleAmount;
-
-          // 缩小时向上补偿，避免底部缩放导致的视觉下坠
-          translateY = -(1 - scale) * cardHeight * translateYCompFactor;
-        }
-      }
-
-      // Z-index（滑动时动态调整）
-      let zIndex = 100 - absProgress;
-
-      // 如果是即将显示的下一张卡片，提升其 z-index（先判断，优先级更高）
-      if (this.data.isSwiping) {
-        const threshold = 80;
-        if (deltaX < -threshold && index === currentIndex + 1) {
-          // 向左翻，下一张（右侧）卡片提升
-          zIndex = 101;
-        } else if (deltaX > threshold && index === currentIndex - 1) {
-          // 向右翻，上一张（左侧）卡片提升
-          zIndex = 101;
-        }
-      }
-
-      // 当滑动超过阈值时，降低当前卡片的 z-index
-      if (this.data.isSwiping && index === currentIndex) {
-        const threshold = 80;
-        if (Math.abs(deltaX) > threshold) {
-          // 即将翻页，降低当前卡片的 z-index
-          zIndex = 50;
-        }
-      }
-
-      // 阴影
-      const shadowOpacity = Math.min(absProgress * 0.3, 0.5);
-
-      // 组合变换
+      // ===== 11. 组合变换 =====
       const transform = `
         translate3d(${translateX}rpx, ${translateY}rpx, ${translateZ}rpx)
         rotateZ(${rotate}deg)
-        scale(${scale})
+        scale(${scaleString})
       `
         .replace(/\s+/g, " ")
         .trim();
