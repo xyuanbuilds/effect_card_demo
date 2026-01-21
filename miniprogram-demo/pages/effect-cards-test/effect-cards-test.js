@@ -33,6 +33,7 @@ Page({
     perSlideRotate: 10, // 默认 10 度
     perSlideOffset: 10, // 默认 10 rpx
     maxVisibleCards: 3,
+    shadow: false, // 是否显示阴影效果
 
     // 卡片尺寸（用于百分比/交换距离计算）
     cardWidth: 300, // rpx，需要与 CSS 中的卡片宽度保持一致
@@ -299,5 +300,39 @@ Page({
         this.updateCardsStyle();
       },
     );
+  },
+
+  /**
+   * 切换到上一张
+   */
+  gotoPrev() {
+    if (this.data.currentIndex > 0) {
+      this.setData(
+        {
+          currentIndex: this.data.currentIndex - 1,
+        },
+        () => {
+          this.updateCardsStyle();
+          wx.vibrateShort({ type: "light" });
+        },
+      );
+    }
+  },
+
+  /**
+   * 切换到下一张
+   */
+  gotoNext() {
+    if (this.data.currentIndex < this.data.cards.length - 1) {
+      this.setData(
+        {
+          currentIndex: this.data.currentIndex + 1,
+        },
+        () => {
+          this.updateCardsStyle();
+          wx.vibrateShort({ type: "light" });
+        },
+      );
+    }
   },
 });

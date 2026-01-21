@@ -96,6 +96,9 @@
 
   <!-- 卡片容器 -->
   <view class="cards-wrapper">
+    <!-- 左侧按钮：上一张 -->
+    <view wx:if="{{currentIndex > 0}}" class="nav-btn nav-btn-left" bindtap="gotoPrev"></view>
+
     <view
       class="card-item {{index === currentIndex ? 'active' : ''}}"
       wx:for="{{cards}}"
@@ -115,8 +118,11 @@
           <text class="card-offset">偏移: {{item.offsetValue}}rpx</text>
         </view>
       </view>
-      <view class="card-shadow" style="{{item.shadowStyle}}"></view>
+      <view wx:if="{{shadow}}" class="card-shadow" style="{{item.shadowStyle}}"></view>
     </view>
+
+    <!-- 右侧按钮：下一张 -->
+    <view wx:if="{{currentIndex < cards.length - 1}}" class="nav-btn nav-btn-right" bindtap="gotoNext"></view>
   </view>
 
   <!-- 预设值快捷按钮 -->
