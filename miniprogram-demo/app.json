@@ -1,9 +1,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/effect-cards/effect-cards",
-    "pages/effect-cards-advanced/effect-cards-advanced",
-    "pages/effect-cards-test/effect-cards-test"
+    "pages/effect-cards-test/effect-cards-test",
+    "pages/overlay-demo/overlay-demo"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

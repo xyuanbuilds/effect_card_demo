@@ -1,0 +1,25 @@
+<view class="container">
+  <!-- 页面主按钮 -->
+  <button class="trigger-btn" bindtap="showOverlay">打开浮层</button>
+
+  <!-- 全屏浮层 -->
+  <view class="overlay {{overlayClosing ? 'closing' : ''}}" wx:if="{{overlayVisible}}" bindtap="hideOverlay">
+    <!-- 浮层内容容器 (点击时阻止冒泡，避免关闭浮层) -->
+    <view class="overlay-content {{overlayClosing ? 'closing' : ''}}" catchtap="onContentTap">
+      <!-- 渲染槽位 -->
+      <view class="render-slot">
+        <!-- 卡片区域 -->
+        <view
+          class="card-area {{cardFlipping ? 'flipping' : ''}}"
+          bindtouchstart="onTouchStart"
+          bindtouchmove="onTouchMove"
+          bindtouchend="onTouchEnd"
+          style="transform: translateZ({{zOffset}}rpx);">
+          <view class="card">
+            <text class="card-text">卡片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -5,31 +5,6 @@
   </view>
 
   <view class="demo-list">
-    <navigator
-      class="demo-item"
-      url="/pages/effect-cards/effect-cards"
-      hover-class="demo-item-hover"
-    >
-      <view class="demo-icon">🎴</view>
-      <view class="demo-info">
-        <text class="demo-title">基础版</text>
-        <text class="demo-desc">简单实现，核心功能</text>
-      </view>
-      <text class="demo-arrow">→</text>
-    </navigator>
-
-    <navigator
-      class="demo-item"
-      url="/pages/effect-cards-advanced/effect-cards-advanced"
-      hover-class="demo-item-hover"
-    >
-      <view class="demo-icon">✨</view>
-      <view class="demo-info">
-        <text class="demo-title">增强版</text>
-        <text class="demo-desc">更多交互和配置选项</text>
-      </view>
-      <text class="demo-arrow">→</text>
-    </navigator>
 
     <navigator
       class="demo-item"
@@ -39,7 +14,20 @@
       <view class="demo-icon">🔬</view>
       <view class="demo-info">
         <text class="demo-title">perSlideRotate 测试</text>
-        <text class="demo-desc">验证旋转参数实现</text>
+        <text class="demo-desc">EffectCards测试验证</text>
+      </view>
+      <text class="demo-arrow">→</text>
+    </navigator>
+
+    <navigator
+      class="demo-item"
+      url="/pages/overlay-demo/overlay-demo"
+      hover-class="demo-item-hover"
+    >
+      <view class="demo-icon">🎨</view>
+      <view class="demo-info">
+        <text class="demo-title">浮层演示</text>
+        <text class="demo-desc">全屏浮层组件演示</text>
       </view>
       <text class="demo-arrow">→</text>
     </navigator>
