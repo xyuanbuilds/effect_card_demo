@@ -1,0 +1,69 @@
+<view class="container">
+  <view class="header">
+    <text class="title">EffectCards Demo</text>
+    <text class="subtitle">小程序版卡片堆叠效果</text>
+  </view>
+
+  <view class="demo-list">
+
+    <navigator
+      class="demo-item"
+      url="/pages/effect-cards-test/effect-cards-test"
+      hover-class="demo-item-hover"
+    >
+      <view class="demo-icon">🔬</view>
+      <view class="demo-info">
+        <text class="demo-title">perSlideRotate 测试</text>
+        <text class="demo-desc">EffectCards测试验证</text>
+      </view>
+      <text class="demo-arrow">→</text>
+    </navigator>
+
+    <navigator
+      class="demo-item"
+      url="/pages/overlay-demo/overlay-demo"
+      hover-class="demo-item-hover"
+    >
+      <view class="demo-icon">🎨</view>
+      <view class="demo-info">
+        <text class="demo-title">浮层演示</text>
+        <text class="demo-desc">全屏浮层组件演示</text>
+      </view>
+      <text class="demo-arrow">→</text>
+    </navigator>
+  </view>
+
+  <view class="features">
+    <text class="features-title">核心特性</text>
+    <view class="feature-list">
+      <view class="feature-item">
+        <text class="feature-icon">✅</text>
+        <text class="feature-text">3D 透视效果</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✅</text>
+        <text class="feature-text">卡片层叠显示</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✅</text>
+        <text class="feature-text">手势滑动切换</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✅</text>
+        <text class="feature-text">实时跟手反馈</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✅</text>
+        <text class="feature-text">平滑过渡动画</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✅</text>
+        <text class="feature-text">可配置参数</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">基于 Swiper EffectCards 原理实现</text>
+  </view>
+</view>

@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/effect-cards-test/effect-cards-test",
+    "pages/overlay-demo/overlay-demo"
+  ],
+  "window": {
+    "defaultTitle": "EffectCards Demo",
+    "titleBarColor": "#ffffff",
+    "backgroundColor": "#f8f8f8",
+    "pullRefresh": false
+  }
+}

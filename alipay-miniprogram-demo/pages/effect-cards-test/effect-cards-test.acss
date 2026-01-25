@@ -1,0 +1,340 @@
+.container {
+  min-height: 100vh;
+  padding: 40rpx;
+  box-sizing: border-box;
+  background: cadetblue;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 12rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 配置显示 */
+.config-display {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 20rpx 10rpx;
+}
+
+.config-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10rpx;
+  min-width: 30%;
+}
+
+.config-row .label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.config-row .value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #667eea;
+}
+
+/* 滑动条面板 */
+.slider-panel {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.slider-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.slider {
+  flex: 1;
+}
+
+.slider-value {
+  font-size: 24rpx;
+  color: #666;
+  min-width: 60rpx;
+  text-align: center;
+}
+
+/* 输入框行 */
+.input-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.input-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.size-input {
+  height: 64rpx;
+  padding: 0 20rpx;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  border: 2rpx solid #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.size-input:focus {
+  background: white;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
+}
+
+/* 开关行 */
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 卡片容器 */
+.cards-wrapper {
+  position: relative;
+  margin: 60rpx auto;
+  perspective: 1200rpx; /* 透视距离：控制 Z 轴变化的视觉效果强度 */
+  transform-style: preserve-3d;
+}
+
+/* 导航按钮 */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 72rpx;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 50%;
+}
+
+.nav-btn:active {
+  transform: translateY(-50%) scale(0.9);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+}
+
+.nav-btn-left {
+  left: 8rpx;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 18 9 12 15 6'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.nav-btn-right {
+  right: 8rpx;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 18 15 12 9 6'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.card-item {
+  position: absolute;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.card-item.active {
+  z-index: 100;
+  transition: none;
+}
+
+.card-content {
+  width: 100%;
+  height: 100%;
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  padding: 30rpx;
+  box-sizing: border-box;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
+}
+
+.card-title-area {
+  margin-bottom: 40rpx;
+}
+
+.card-number {
+  font-size: 80rpx;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+
+.card-body-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20rpx;
+}
+
+.card-angle,
+.card-offset {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12rpx 24rpx;
+  border-radius: 12rpx;
+  backdrop-filter: blur(10rpx);
+}
+
+.card-shadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 24rpx;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 预设按钮 */
+.presets {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.presets-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.preset-btn {
+  flex: 0 0 calc(33.333% - 11rpx);
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: 2rpx solid transparent;
+  transition: all 0.2s ease;
+}
+
+.preset-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: white;
+  transform: scale(1.05);
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.4);
+}
+
+.preset-btn:active {
+  transform: scale(0.95);
+}
+
+/* 旋转基准点按钮 */
+.origin-buttons {
+  display: flex;
+  gap: 16rpx;
+}
+
+.origin-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: 2rpx solid transparent;
+  transition: all 0.2s ease;
+}
+
+.origin-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: white;
+  transform: scale(1.05);
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.4);
+}
+
+.origin-btn:active {
+  transform: scale(0.95);
+}
+
+/* 说明文字 */
+.description {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
+.desc-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.desc-text {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 2;
+  margin-bottom: 8rpx;
+}
+
+.desc-text:last-child {
+  margin-bottom: 0;
+}

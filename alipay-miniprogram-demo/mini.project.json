@@ -1,0 +1,8 @@
+{
+  "format": 2,
+  "miniprogramRoot": ".",
+  "compileType": "miniprogram",
+  "component2": true,
+  "enableAppxNg": true,
+  "scopedStyle": false
+}
